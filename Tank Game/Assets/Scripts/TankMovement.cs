@@ -11,6 +11,10 @@ public class TankMovement : MonoBehaviour {
     private Rigidbody m_Rigidbody;              // Reference used to move the tank.
     private float m_MovementInputValue;         // The current value of the movement input.
     private float m_TurnInputValue;             // The current value of the turn input.
+    [Space]
+
+    [Header("Shooting")]
+    public GameObject bulletPrefab;
 
     private void Awake () {
         m_Rigidbody = GetComponent<Rigidbody> ();
@@ -33,31 +37,28 @@ public class TankMovement : MonoBehaviour {
     }
 
 
-    private void Start ()
-    {
+    private void Start () {
         // The axes names are based on player number.
         m_MovementAxisName = "Vertical";
         m_TurnAxisName = "Horizontal";
     }
 
 
-    private void Update ()
-    {
+    private void Update () {
         // Store the value of both input axes.
         m_MovementInputValue = Input.GetAxis (m_MovementAxisName);
         m_TurnInputValue = Input.GetAxis (m_TurnAxisName);
     }
 
-    private void FixedUpdate ()
-    {
+    private void FixedUpdate () {
         // Adjust the rigidbodies position and orientation in FixedUpdate.
         Move ();
         Turn ();
+        Shoot(bulletPrefab);
     }
 
 
-    private void Move ()
-    {
+    private void Move () {
         // Create a vector in the direction the tank is facing with a magnitude based on the input, speed and the time between frames.
         Vector3 movement = transform.forward * m_MovementInputValue * m_Speed * Time.deltaTime;
 
@@ -66,8 +67,7 @@ public class TankMovement : MonoBehaviour {
     }
 
 
-    private void Turn ()
-    {
+    private void Turn () {
         // Determine the number of degrees to be turned based on the input, speed and time between frames.
         float turn = m_TurnInputValue * m_TurnSpeed * Time.deltaTime;
 
@@ -76,5 +76,14 @@ public class TankMovement : MonoBehaviour {
 
         // Apply this rotation to the rigidbody's rotation.
         m_Rigidbody.MoveRotation (m_Rigidbody.rotation * turnRotation);
+    }
+
+    private void Shoot (GameObject projectile) {
+        if (Input.GetButtonDown("Fire1")) {
+            projectile = Instantiate(bulletPrefab);
+            projectile.transform.rotation = transform.rotation;
+            projectile.transform.position = transform.position + transform.forward;
+            Destroy(projectile, 3f);
+        }
     }
 }
